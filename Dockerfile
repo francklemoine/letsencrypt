@@ -1,8 +1,8 @@
 # DESCRIPTION: letsencrypt within a container
 # BUILD:       docker build -t flem/letsencrypt .
 # RUN:         docker run -d \
-#                         -e EMAIL=user@domain.tld
-#                         -e DOMAIN=www.domain.tld
+#                         -e EMAIL1=user@domain.tld
+#                         -e DOMAIN1=www.domain.tld
 #                         flem/letsencrypt
 
 
@@ -14,17 +14,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN buildDeps=' \
 		git \
+		ca-certificates \
 		cron \
 	' \
 	set -x \
-	&& test -z ${http_proxy}  || /bin/echo -e "Acquire::http::proxy \"${http_proxy}\";\n" >>/etc/apt/apt.conf \
-	&& test -z ${https_proxy} || /bin/echo -e "Acquire::https::proxy \"${https_proxy}\";\n" >>/etc/apt/apt.conf \
 	&& apt-get -y update \
 	&& apt-get -y upgrade \
-	&& apt-get install -y --no-install-recommends $buildDeps
-
-RUN git config --global http.sslVerify false \
-    && git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt \
+	&& apt-get install -y --no-install-recommends $buildDeps \
+	&& update-ca-certificates \
+	&& git config --global http.sslVerify false \
+	&& git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt \
 	&& /opt/letsencrypt/letsencrypt-auto --os-packages-only \
 	&& apt-get clean autoclean \
 	&& rm -rf /var/lib/apt/lists/* \
