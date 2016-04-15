@@ -37,8 +37,7 @@ for (( i=1; i<=${#DOMAIN_ARRAY[@]}; i++ )); do
 			                              --rsa-key-size 4096 \
 			                              --webroot \
 			                              --webroot-path /var/www/${DOMAIN_ARRAY[$i]} \
-			                              --domain ${DOMAIN_ARRAY[$i]} \
-			                              --staging
+			                              --domain ${DOMAIN_ARRAY[$i]}
 		then
 			# Echo quickstart guide to logs
 			echo
