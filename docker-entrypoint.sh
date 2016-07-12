@@ -24,8 +24,8 @@ fi
 
 for (( i=1; i<=${#DOMAIN_ARRAY[@]}; i++ )); do
 	if [[ ! -f "/firstrun_${DOMAIN_ARRAY[$i]}" ]]; then
-		[[ -f "/etc/cron.d/${DOMAIN_ARRAY[$i]}" ]] && rm -f /etc/cron.d/${DOMAIN_ARRAY[$i]}
-		echo -e "30 ${i} * * 0 /opt/letsencrypt/letsencrypt-auto renew --no-self-upgrade >>/var/log/letsencrypt_${DOMAIN_ARRAY[$i]}.log\n" >/etc/cron.d/${DOMAIN_ARRAY[$i]}
+		[[ -f "/etc/cron.d/${DOMAIN_ARRAY[$i]/./-}" ]] && rm -f /etc/cron.d/${DOMAIN_ARRAY[$i]/./-}
+		echo -e "30 ${i} * * 0 root /opt/letsencrypt/letsencrypt-auto renew --no-self-upgrade >>/var/log/letsencrypt_${DOMAIN_ARRAY[$i]}.log\n" >>/etc/cron.d/${DOMAIN_ARRAY[$i]/./-}
 
 		[[ -d /var/www/${DOMAIN_ARRAY[$i]} ]] || mkdir /var/www/${DOMAIN_ARRAY[$i]}
 
