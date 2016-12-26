@@ -2,7 +2,7 @@
 
 set -e
 
-MAXDOMAIN=4
+MAXDOMAIN=9
 
 # set EMAIL and DOMAIN arrays
 for (( i=1; i<=${MAXDOMAIN}; i++ )); do
@@ -23,11 +23,12 @@ fi
 
 
 for (( i=1; i<=${#DOMAIN_ARRAY[@]}; i++ )); do
-	if [[ ! -f "/firstrun_${DOMAIN_ARRAY[$i]}" ]]; then
+	if [[ ! -d "/var/www/${DOMAIN_ARRAY[$i]}" ]]; then
 		[[ -f "/etc/cron.d/${DOMAIN_ARRAY[$i]/./-}" ]] && rm -f /etc/cron.d/${DOMAIN_ARRAY[$i]/./-}
-		echo -e "30 ${i} * * 0 root /opt/letsencrypt/letsencrypt-auto renew --no-self-upgrade >>/var/log/letsencrypt_${DOMAIN_ARRAY[$i]}.log\n" >>/etc/cron.d/${DOMAIN_ARRAY[$i]/./-}
+		echo -e "10 ${i} * * 0 root /opt/letsencrypt/letsencrypt-auto renew --no-self-upgrade >>/var/log/letsencrypt_${DOMAIN_ARRAY[$i]}.log\n" >>/etc/cron.d/${DOMAIN_ARRAY[$i]/./-}
+		echo -e "40 ${i} * * 0 root /usr/local/bin/bunch_certificates.sh \"${DOMAIN_ARRAY[$i]}\"" >>/etc/cron.d/${DOMAIN_ARRAY[$i]/./-}
 
-		[[ -d /var/www/${DOMAIN_ARRAY[$i]} ]] || mkdir /var/www/${DOMAIN_ARRAY[$i]}
+		mkdir /var/www/${DOMAIN_ARRAY[$i]}
 
 		# letsencrypt cert
 		if /opt/letsencrypt/letsencrypt-auto certonly \
@@ -46,17 +47,19 @@ for (( i=1; i<=${#DOMAIN_ARRAY[@]}; i++ )); do
 			echo '================================================================================='
 			echo
 
-			# Used as identifier for first-run-only stuff
-			touch /firstrun_${DOMAIN_ARRAY[$i]}
+			# Bunch the certs for the first time
+			/usr/local/bin/bunch_certificates.sh "${DOMAIN_ARRAY[$i]}"
 		else
 			echo
 			echo '================================================================================='
 			echo "Your ${DOMAIN_ARRAY[$i]} letsencrypt container can't get certificates!"
 			echo '================================================================================='
 			echo
+
+			rm -fR /var/www/${DOMAIN_ARRAY[$i]}
+			rm -f  /etc/cron.d/${DOMAIN_ARRAY[$i]/./-}
 		fi
 	fi
 done
 
 /usr/sbin/cron -f -L 15
-
