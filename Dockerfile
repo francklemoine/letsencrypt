@@ -29,11 +29,12 @@ RUN buildDeps=' \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& rm -rf /tmp/*
 
+COPY bunch_certificate.sh /usr/local/bin
 COPY docker-entrypoint.sh /
 
-RUN chmod +x /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh \
+	&& chmod +x /usr/local/bin/bunch_certificate.sh
 
 VOLUME ["/etc/letsencrypt", "/var/www"]
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-
